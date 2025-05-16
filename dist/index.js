@@ -29464,7 +29464,7 @@ async function run() {
         const url = core.getInput("url");
         const workflow_id = core.getInput("workflow_id");
         const cleanup = core.getInput("cleanup") === "true";
-        const files = name.includes(" ") ? name.split(" ") : name.includes(",") ? name.split(",").map((it) => it.trim()) : [name];
+        const files = name.includes(",") ? name.split(",").map((it) => it.trim()) : name.includes(" ") ? name.split(" ") : [name];
         console.log(`Download artifacts for workflow ${workflow_id}: `, files);
         await Promise.all(files.map(async (file) => {
             const response = await axios_1.default.get(`${url}/${workflow_id}/${file}.tgz`, { responseType: "arraybuffer" });
