@@ -11,7 +11,11 @@ inputs:
     required: true
   workflow_id:
     description: "GitHub run/workflow ID for parallel builds with the same artifacts name"
+    required: true
+  cleanup:
+    description: "Cleanup the artifact after download"
     required: false
+    default: "false"
 runs:
   using: "node16"
   main: "dist/index.js"

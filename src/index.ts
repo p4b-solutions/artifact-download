@@ -10,6 +10,7 @@ async function run(): Promise<void> {
     const root = core.getInput("path");
     const url = core.getInput("url");
     const workflow_id = core.getInput("workflow_id");
+    const cleanup = core.getInput("cleanup") === "true";
     const files = name.includes(" ") ? name.split(" ") : name.includes(",") ? name.split(",").map((it) => it.trim()) : [name];
     console.log(`Download artifacts for workflow ${workflow_id}: `, files);
     await Promise.all(
@@ -23,6 +24,11 @@ async function run(): Promise<void> {
         fs.unlinkSync(archive);
       })
     );
+    try {
+      if (cleanup) await axios.delete(`${url}/${workflow_id}`);
+    } catch (error) {
+      console.log("Error deleting artifacts: ", error);
+    }
   } catch (error: any) {
     core.setFailed(error.message);
   }
