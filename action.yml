@@ -1,0 +1,17 @@
+name: "Download Artifact from file server"
+inputs:
+  name:
+    description: "Name of the artifact"
+    required: true
+  path:
+    description: "Path to artifact destination"
+    required: true
+  url:
+    description: "URL of the file server"
+    required: true
+  workflow_id:
+    description: "GitHub run/workflow ID for parallel builds with the same artifacts name"
+    required: false
+runs:
+  using: "node16"
+  main: "dist/index.js"

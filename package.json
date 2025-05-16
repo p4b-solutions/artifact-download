@@ -1,0 +1,23 @@
+{
+  "name": "artifact-download",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist",
+    "prepare": "npm run build",
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"no tests yet\""
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vercel/ncc": "^0.38.0",
+    "axios": "^1.9.0",
+    "form-data": "^4.0.2",
+    "tar": "^7.4.3",
+    "typescript": "^5.0.0"
+  }
+}
