@@ -29456,31 +29456,24 @@ const core = __importStar(__nccwpck_require__(7484));
 const node_fs_1 = __importDefault(__nccwpck_require__(3024));
 const node_path_1 = __importDefault(__nccwpck_require__(6760));
 const tar = __importStar(__nccwpck_require__(8116));
-const axios_1 = __importStar(__nccwpck_require__(7269));
-const form_data_1 = __importDefault(__nccwpck_require__(6454));
+const axios_1 = __importDefault(__nccwpck_require__(7269));
 async function run() {
     try {
         const name = core.getInput("name");
+        const root = core.getInput("path");
+        const url = core.getInput("url");
         const workflow_id = core.getInput("workflow_id");
-        const url = core.getInput("url"); // "https://files.p4b.biz/v3/upload/artifacts"
-        const src = core.getInput("path");
-        const cwd = node_fs_1.default.statSync(src).isDirectory() ? src : node_path_1.default.dirname(src);
-        const files = src === cwd ? ["."] : [node_path_1.default.basename(src)];
-        await tar.create({ gzip: true, file: `${name}.tgz`, cwd }, files);
-        const form = new form_data_1.default();
-        form.append("file", node_fs_1.default.createReadStream(`${name}.tgz`));
-        try {
-            await axios_1.default.post(`${url}/${workflow_id}/${name}.tgz`, form);
-        }
-        catch (error) {
-            if ((0, axios_1.isAxiosError)(error) && error.response) {
-                console.log(`Request error:`, error.response?.data);
-                throw new Error(`HTTP error ${error.response.status}: ${error.response.statusText}`);
-            }
-            else {
-                throw error;
-            }
-        }
+        const files = name.includes(" ") ? name.split(" ") : name.includes(",") ? name.split(",").map((it) => it.trim()) : [name];
+        console.log(`Download artifacts for workflow ${workflow_id}: `, files);
+        await Promise.all(files.map(async (file) => {
+            const response = await axios_1.default.get(`${url}/${workflow_id}/${file}.tgz`, { responseType: "arraybuffer" });
+            const folder = node_path_1.default.join(root, file);
+            node_fs_1.default.mkdirSync(folder, { recursive: true });
+            const archive = node_path_1.default.join(folder, `${file}.tgz`);
+            node_fs_1.default.writeFileSync(archive, response.data);
+            await tar.extract({ file: archive, cwd: folder });
+            node_fs_1.default.unlinkSync(archive);
+        }));
     }
     catch (error) {
         core.setFailed(error.message);
